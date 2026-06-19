@@ -17,7 +17,8 @@ module.exports = async function handler(req, res) {
         const { mockupDataUrl, design } = req.body || {};
 
         const price = design && design.total ? String(design.total) : '0.00';
-        const title = design && design.text ? 'Custom Neon - ' + design.text : 'Custom Neon Sign';
+            const isRush = design && design.addOns && design.addOns.rush;
+            const title = (design && design.text ? 'Custom Neon - ' + design.text : 'Custom Neon Sign') + (isRush ? ' [Rush Order]' : '');
 
         // Build design spec HTML description
         const d = design || {};
