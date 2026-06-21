@@ -5,7 +5,7 @@
    Required env vars:
      RESEND_API_KEY   — from resend.com
      STORE_EMAIL      — inbox to receive logo quote requests (e.g. hello@statusglow.co)
-     ALLOWED_ORIGINS  — comma-separated list of allowed origins (same as create-temp-product)
+     ALLOWED_ORIGINS  — comma-separated list of allowed origins (leave unset to allow all)
 */
 
 const https = require("https");
@@ -43,13 +43,16 @@ function resendRequest(payload) {
 
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "";
-  if (ALLOWED.length && !ALLOWED.includes(origin)) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
+
+  // Set CORS headers first — OPTIONS preflight must always get them
   res.setHeader("Access-Control-Allow-Origin", origin || "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
+
+  if (ALLOWED.length && !ALLOWED.includes(origin)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   if (!RESEND_KEY || !STORE_EMAIL) {
